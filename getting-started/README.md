@@ -85,7 +85,30 @@ Follow these steps to add Semita Rollups Aries support to a newly created Hardha
        accounts: { mnemonic: process.env.MNEMONIC }
     }
    ```
+#### Deploying a contract
 
+To deploy a contract from the Hardhat console:
+
+```ts
+import { ethers } from "hardhat";
+
+async function main() {
+  const ContractFactory = await ethers.getContractFactory("Greeter");
+
+  const instance = await ContractFactory.deploy("Hello, world!");
+  await instance.deployed();
+
+  console.log(`Contract deployed to ${instance.address}`);
+}
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+
+```
 
 #### Greeter interaction
 
@@ -117,27 +140,120 @@ Follow these steps to add Semita Rollups Aries support to a newly created Hardha
    await greeter.greet()
    ```
 
-#### Deploying a contract
+### Truffle
 
-To deploy a contract from the Hardhat console:
+In [Truffle](https://trufflesuite.com/) you use a configuration similar to [this one]().
 
-```ts
-import { ethers } from "hardhat";
+#### Install Truffle
 
-async function main() {
-  const ContractFactory = await ethers.getContractFactory("Greeter");
+Follow the official guide [here](https://trufflesuite.com/docs/truffle/how-to/install/) 
 
-  const instance = await ContractFactory.deploy("Hello, world!");
-  await instance.deployed();
-
-  console.log(`Contract deployed to ${instance.address}`);
-}
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+#### Install Dependencies
 
 ```
+$ npm install dotenv
+$ npm install truffle-hdwallet-provider 
+```
+
+#### Connecting to Optimism
+
+Follow these steps to add Optimism Goerli support to an existing Truffle project. 
+
+
+1. Define your network configuration in `.env`:
+
+   ```sh
+   # Put the mnemonic for an account on Optimism here
+   MNEMONIC=test test test test test test test test test test test junk
+
+   # URL to access Optimism Goerli
+   OPTIMISM_URL=
+   ```
+
+1. Add `dotenv` and `@truffle/hdwallet-provider` to your project:
+
+   ```sh
+   yarn add dotenv @truffle/hdwallet-provider
+   ```
+
+
+1. Edit `truffle-config.js`:
+
+   1. Uncomment this line:
+
+      ```js
+      const HDWalletProvider = require('@truffle/hdwallet-provider')
+      ```
+
+   1. Use `.env` for your network configuration:
+
+      ```js
+      require('dotenv').config()
+      ```
+
+   1. Get the correct URL:
+
+      ```js
+      const optimismUrl = process.env.ROLLUP_URL
+      ```
+
+   1. Add a network definition in `module.exports.networks`:
+
+      ```js
+      "semita": {
+         provider: () => new HDWalletProvider(
+            process.env.MNEMONIC,
+            optimismUrl),
+         network_id: 715
+      }
+      ```
+#### Contract deployment
+
+You deploy a new contract from the console.
+
+``` 
+greeter = await Greeter.new("Greeter from Truffle")
+```
+
+Wait a few seconds for the deployment to actually happen and then verify.
+
+```
+console.log(`Contract address: ${greeter.address}`)
+await greeter.greet()
+```
+
+#### Greeter interaction
+
+1. Compile the contract and run the console.
+
+   ```sh
+   truffle compile
+   truffle console --network semita
+   ```
+
+1. Connect to the Greeter contact.
+
+   ```js
+   greeter = await Greeter.at("0xBd8500313ad026cC25B35Fd5d223EBBcb8A8640E")
+   ```
+
+1. Read information from the contact.
+
+   ```js
+   await greeter.greet()
+   ```
+
+1. Submit a transaction.
+
+   ```js
+   tx = await greeter.setGreeting(`Truffle: Hello ${new Date()}`)
+   ```
+
+1. Wait a few seconds for the transaction to be processed.s
+
+1. See that the greeting has changed.
+
+   ```js
+   greeter.greet()
+   ```
+
