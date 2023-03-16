@@ -22,10 +22,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 require('dotenv').config()
 
       
-const optimismGoerliUrl =
-    process.env.ALCHEMY_API_KEY ?
-        `https://opt-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}` :
-        process.env.OPTIMISM_GOERLI_URL
+const optimismGoerliUrl =  process.env.OPTIMISM_URL
 
 const words = process.env.MNEMONIC.match(/[a-zA-Z]+/g).length
 validLength = [12, 15, 18, 24]
@@ -82,11 +79,11 @@ module.exports = {
        networkCheckTimeout: 1000000000,
        timeoutBlocks: 300
     },
-    "optimism-goerli": {
+    "semita": {
       provider: () => new HDWalletProvider(
          process.env.MNEMONIC,
-         optimismGoerliUrl),
-      network_id: 420,
+         optimismUrl),
+      network_id: 715,
       gas: 1e6
    },
     // Useful for private networks
